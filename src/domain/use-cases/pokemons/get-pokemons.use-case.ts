@@ -1,11 +1,27 @@
 import {pokeApi} from '../../../config/api/pokeApi';
-import {PokemonEntity} from '../../entities/pokemon';
+import type {
+  PokeAPIPaginatedResponse,
+  PokeAPIPokemon,
+} from '../../../infrastructure/interfaces/pokeApi.interfaces';
+import {PokemonMapper} from '../../../infrastructure/mappers/pokemon.mapper';
+import type {PokemonEntity} from '../../entities/pokemon';
 
-export const getPokemonsUseCase = async (): Promise<PokemonEntity[]> => {
+export const getPokemonsUseCase = async (
+  page: number,
+  limit: number = 20,
+): Promise<PokemonEntity[]> => {
   try {
-    const url = '/pokemonssssss';
-    const {data} = await pokeApi.get(url);
-    return [];
+    const url = `/pokemon?offset=${page * 10}&limit=${limit}`;
+    const {data} = await pokeApi.get<PokeAPIPaginatedResponse>(url);
+    const pokemonPromises = data.results.map(item => {
+      return pokeApi.get<PokeAPIPokemon>(item.url);
+    });
+    const pokeApiPokemons = await Promise.all(pokemonPromises);
+    const pokemons = pokeApiPokemons.map(item =>
+      PokemonMapper.pokeApiPokemonToEntity(item.data),
+    );
+
+    return pokemons;
   } catch (error) {
     throw new Error('Error fetching pokemons');
   }

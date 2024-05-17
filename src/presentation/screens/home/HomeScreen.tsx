@@ -1,28 +1,42 @@
 import {useQuery} from '@tanstack/react-query';
 import React from 'react';
-import {View} from 'react-native';
-import {ActivityIndicator, Button, Text} from 'react-native-paper';
+import {FlatList, StyleSheet, View} from 'react-native';
+import {Text} from 'react-native-paper';
 import {getPokemonsUseCase} from '../../../domain/use-cases/pokemons';
+import {PokeBallBg} from '../../components/ui/PokeBallBg';
+import {PokemonEntity} from '../../../domain/entities/pokemon';
+import {globalTheme} from '../../../config/theme/global-theme';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {PokemonCard} from '../../components/pokemons/PokemonCard';
 
 export const HomeScreen = () => {
-  const {isLoading, isError, data} = useQuery({
+  const {top} = useSafeAreaInsets();
+  const {
+    isLoading,
+    isError,
+    data: pokemons = [],
+  } = useQuery({
     queryKey: ['pokemons'],
-    queryFn: () => getPokemonsUseCase(),
+    queryFn: () => getPokemonsUseCase(0),
     staleTime: 1000 * 60 * 60,
   });
   return (
-    <View>
-      <Text>Home Screen</Text>
-      {isLoading ? (
-        <ActivityIndicator />
-      ) : (
-        <Button
-          icon="camera"
-          mode="contained"
-          onPress={() => console.log('Pressed')}>
-          Press me
-        </Button>
-      )}
+    <View style={globalTheme.globalMargin}>
+      <PokeBallBg style={styles.imgPosition} />
+      <FlatList
+        data={pokemons}
+        keyExtractor={(pokemon: PokemonEntity, index) =>
+          `${pokemon.id}-${index}`
+        }
+        style={{paddingTop: top + 20}}
+        numColumns={2}
+        ListHeaderComponent={() => <Text variant="displayMedium">Pokedex</Text>}
+        renderItem={({item}) => <PokemonCard pokemon={item} />}
+      />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  imgPosition: {position: 'absolute', top: -100, right: -100},
+});
