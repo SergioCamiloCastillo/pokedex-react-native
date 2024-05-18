@@ -4,4 +4,5 @@ export interface PokemonEntity {
   types: string[];
   avatar: string;
   sprites: string[];
+  color: string;
 }

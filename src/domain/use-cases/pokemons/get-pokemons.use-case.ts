@@ -16,12 +16,14 @@ export const getPokemonsUseCase = async (
     const pokemonPromises = data.results.map(item => {
       return pokeApi.get<PokeAPIPokemon>(item.url);
     });
+    console.log('la data que trae es=>', data);
+    
     const pokeApiPokemons = await Promise.all(pokemonPromises);
-    const pokemons = pokeApiPokemons.map(item =>
+    const pokemonsPromises = pokeApiPokemons.map(item =>
       PokemonMapper.pokeApiPokemonToEntity(item.data),
     );
 
-    return pokemons;
+    return await Promise.all(pokemonsPromises);
   } catch (error) {
     throw new Error('Error fetching pokemons');
   }

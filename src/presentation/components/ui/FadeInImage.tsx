@@ -4,7 +4,6 @@ import {
   Animated,
   ImageStyle,
   StyleProp,
-  Text,
   View,
 } from 'react-native';
 import {useAnimation} from '../../hooks/useAnimation';
@@ -17,14 +16,17 @@ interface Props {
 export const FadeInImage = ({uri, style}: Props) => {
   const {animatedOpacity, fadeIn} = useAnimation();
   const [isLoading, setIsLoading] = useState(true);
+
   const isDisposed = useRef(false);
+
   useEffect(() => {
     return () => {
       isDisposed.current = true;
     };
   }, []);
+
   const onLoadEnd = () => {
-    if (!isDisposed.current) return;
+    if (isDisposed.current) return;
     fadeIn({});
     setIsLoading(false);
   };
@@ -42,7 +44,7 @@ export const FadeInImage = ({uri, style}: Props) => {
       <Animated.Image
         source={{uri}}
         onLoadEnd={onLoadEnd}
-        style={[style, {opacity: animatedOpacity}]}
+        style={[style, {opacity: animatedOpacity, resizeMode: 'contain'}]}
       />
     </View>
   );

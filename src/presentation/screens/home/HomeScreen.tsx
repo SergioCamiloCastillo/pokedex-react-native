@@ -1,5 +1,5 @@
 import {useQuery} from '@tanstack/react-query';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {FlatList, StyleSheet, View} from 'react-native';
 import {Text} from 'react-native-paper';
 import {getPokemonsUseCase} from '../../../domain/use-cases/pokemons';
@@ -20,6 +20,10 @@ export const HomeScreen = () => {
     queryFn: () => getPokemonsUseCase(0),
     staleTime: 1000 * 60 * 60,
   });
+  useEffect(() => {
+    console.log('ajiiii=>', pokemons);
+  }, []);
+
   return (
     <View style={globalTheme.globalMargin}>
       <PokeBallBg style={styles.imgPosition} />
