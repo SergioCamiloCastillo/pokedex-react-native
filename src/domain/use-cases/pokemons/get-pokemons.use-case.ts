@@ -16,7 +16,6 @@ export const getPokemonsUseCase = async (
     const pokemonPromises = data.results.map(item => {
       return pokeApi.get<PokeAPIPokemon>(item.url);
     });
-    console.log('la data que trae es=>', data);
     
     const pokeApiPokemons = await Promise.all(pokemonPromises);
     const pokemonsPromises = pokeApiPokemons.map(item =>
