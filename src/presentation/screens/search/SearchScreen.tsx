@@ -11,27 +11,30 @@ import {
   getPokemonsByIds,
 } from '../../../domain/use-cases/pokemons';
 import {FullScreenLoader} from '../../components/ui/FullScreenLoader';
+import {useDebouceValue} from '../../hooks/useDebouceValue';
 
 export const SearchScreen = () => {
   const {top} = useSafeAreaInsets();
   const [term, setTerm] = useState('');
+  const debouncedValue = useDebouceValue({input: term});
+
   const {isLoading, data: pokemonNameList = []} = useQuery({
     queryKey: ['pokemons', 'all'],
     queryFn: () => getPokemonWithNamesId(),
   });
   const pokemonNameIdList = useMemo(() => {
-    if (!isNaN(Number(term))) {
+    if (!isNaN(Number(debouncedValue))) {
       //es un numero
       const pokemon = pokemonNameList.find(
-        pokemon => pokemon.id === Number(term),
+        pokemon => pokemon.id === Number(debouncedValue),
       );
       return pokemon ? [pokemon] : [];
     }
-    if (term.length === 0 || term.length < 3) return [];
+    if (debouncedValue.length === 0 || debouncedValue.length < 3) return [];
     return pokemonNameList.filter(pokemon =>
-      pokemon.name.includes(term.toLowerCase()),
+      pokemon.name.includes(debouncedValue.toLowerCase()),
     );
-  }, [term]);
+  }, [debouncedValue]);
   const {isLoading: isLoadingPokemons, data: pokemons} = useQuery({
     queryKey: ['pokemons', 'by', pokemonNameIdList],
     queryFn: () =>
